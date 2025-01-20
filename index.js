@@ -1,18 +1,38 @@
-var http = require('http');
-var url = require('url');
-var fs = require('fs');
+const http = require('http');
+const fs = require('fs');
 
-http.createServer(function (req, res) {
-  var q = url.parse(req.url, true);
-  var filename = "." + q.pathname;
-  fs.readFile(filename, function(err, data){
-    if (err) {
-      res.writeHead(404, {'Content-Type': 'text/html'});
-      return res.end("404 Not Found");
-    }
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.write(data);
-    return res.end();
-  })
+http.createServer((req, res) => {
   
-}).listen(8080);
+let path = './';
+switch(req.url) {
+  case '/':
+    path += 'index.html';
+    res.statusCode = 200;
+    break;
+  case '/about':
+    path += 'about.html';
+    res.statusCode = 200;
+    break;
+  case '/contact-me':
+    path += 'contact-me.html';
+    res.statusCode = 200;
+    break;
+  default:
+    path += '404.html';
+    res.statusCode = 404;
+    break;
+}
+
+
+fs.readFile(path, function(err, data){
+    res.writeHead(res.statusCode, {'Content-Type': 'text/html'});
+    if (err) {
+      console.log(err)
+      return res.end();
+    }
+    return res.end(data);
+  })
+
+}).listen(8080, 'localhost', () => {
+  console.log('Listening for requests on port 8080')
+});
